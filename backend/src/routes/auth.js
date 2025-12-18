@@ -250,6 +250,7 @@ router.put('/notifications/:id/read', authenticateToken, async (req, res, next) 
       { new: true }
     );
 
+export default router;
     if (!notification) {
       return res.status(404).json({ error: true, message: 'Notification not found', code: 404 });
     }

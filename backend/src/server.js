@@ -138,4 +138,8 @@ app.use('/api', attachmentRoutes);
 app.use('/api/boards', authenticateToken, boardRoutes);
 app.use('/api/public', publicRoutes);
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", message: "Backend is running" });
+});
+
 app.use(errorHandler);
