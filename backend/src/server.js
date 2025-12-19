@@ -33,7 +33,7 @@ import SocketService from './services/socket.service.js';
 
 dotenv.config({ path: './.env' });
 const app = express();
-app.use(cors({ origin: ['https://kansync.app', 'https://landing.kansync.app'], credentials: true, allowedHeaders: ['Content-Type', 'Authorization'] }));
+app.use(cors({ origin: ['https://kansync.app', 'https://landing.kansync.app', 'https://kan-sync.netlify.app'], credentials: true, allowedHeaders: ['Content-Type', 'Authorization'] }));
 app.use(express.json());
 app.use(morgan('dev'));
 // app.use(helmet());
