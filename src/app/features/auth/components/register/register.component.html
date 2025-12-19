@@ -1,0 +1,169 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
+  <div class="relative w-full max-w-6xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden lg:grid lg:grid-cols-2">
+    <!-- Left Panel: Branding and Features -->
+    <div class="relative hidden lg:flex flex-col justify-between p-10 bg-gradient-to-br from-indigo-600 to-purple-700 text-white">
+      <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('assets/kanban-bg.jpg');"></div>
+      <div class="relative z-10">
+        <h1 class="text-4xl font-extrabold tracking-tight">KanSync</h1>
+        <p class="mt-4 text-lg opacity-90">Your ultimate task management solution.</p>
+      </div>
+      <div class="relative z-10 mt-8">
+        <ul class="space-y-3">
+          <li class="flex items-center">
+            <svg class="h-6 w-6 mr-3 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Seamless Task Organization
+          </li>
+          <li class="flex items-center">
+            <svg class="h-6 w-6 mr-3 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Real-time Collaboration
+          </li>
+          <li class="flex items-center">
+            <svg class="h-6 w-6 mr-3 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Intuitive User Interface
+          </li>
+        </ul>
+      </div>
+      <div class="relative z-10 text-sm opacity-70 mt-10">
+        &copy; 2024 KanSync. All rights reserved.
+      </div>
+    </div>
+
+    <!-- Right Panel: Register Form -->
+    <div class="p-8 sm:p-10 lg:p-12 flex flex-col justify-center">
+      <div class="max-w-md mx-auto w-full">
+        <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white text-center mb-2">
+          Create Your Account
+        </h2>
+        <p class="text-center text-gray-600 dark:text-gray-300 mb-8">
+          Sign up to start using KanSync.
+        </p>
+
+        <!-- Social Register Options -->
+        <div class="space-y-4 mb-8">
+          <div id="google-signin-button" class="w-full flex items-center justify-center"></div>
+
+        </div>
+
+        <div class="relative flex justify-center text-sm mb-8">
+          <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+            Or continue with
+          </span>
+          <div class="absolute inset-y-0 left-0 w-full flex items-center">
+            <div class="w-full border-t border-gray-300 dark:border-gray-700"></div>
+          </div>
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+          <div>
+            <label for="name" class="sr-only">Full name</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              autocomplete="name"
+              required
+              formControlName="name"
+              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 dark:bg-gray-700"
+              placeholder="Full name"
+            />
+            <div class="text-red-500 text-sm mt-1" *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.invalid">
+              {{ getErrorMessage('name') }}
+            </div>
+          </div>
+          <div>
+            <label for="email" class="sr-only">Email address</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              formControlName="email"
+              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 dark:bg-gray-700"
+              placeholder="Email address"
+            />
+            <div class="text-red-500 text-sm mt-1" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+              {{ getErrorMessage('email') }}
+            </div>
+          </div>
+          <div>
+            <label for="password" class="sr-only">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              required
+              formControlName="password"
+              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 dark:bg-gray-700"
+              placeholder="Password"
+            />
+            <div class="text-red-500 text-sm mt-1" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+              {{ getErrorMessage('password') }}
+            </div>
+          </div>
+
+          <div class="text-red-500 text-sm text-center" *ngIf="error$ | async as error">
+            {{ error }}
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              [disabled]="registerForm.invalid || (loading$ | async)"
+              class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+            >
+              <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                <svg
+                  *ngIf="!(loading$ | async)"
+                  class="h-5 w-5 text-indigo-300 group-hover:text-indigo-200 dark:text-indigo-200 dark:group-hover:text-indigo-100"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <svg
+                  *ngIf="loading$ | async"
+                  class="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              </span>
+              {{ (loading$ | async) ? 'Creating account...' : 'Create account' }}
+            </button>
+          </div>
+
+          <div class="text-sm text-center">
+            <a
+              routerLink="/auth/login"
+              class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+            >
+              Already have an account? Sign in
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
