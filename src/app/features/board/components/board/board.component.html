@@ -1,0 +1,222 @@
+<!-- Loading State -->
+<div *ngIf="loading" class="flex items-center justify-center h-full w-full text-indigo-600 text-lg">
+  <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+  </svg>
+  Loading board...
+</div>
+
+<!-- Error State -->
+<div *ngIf="error" class="flex items-center justify-center h-full w-full text-red-600 text-lg">
+  <p>Error: {{ error }}</p>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="board && !loading && !error" class="flex h-screen bg-gray-100 overflow-auto">
+  <!-- Left Sidebar -->
+  <div class="w-64 bg-white shadow-md flex-col hidden lg:flex">
+    <div class="p-4 border-b border-gray-200">
+      <h1 class="text-xl font-semibold text-gray-800">KanSync</h1>
+    </div>
+    <nav class="flex-grow p-4">
+      <h2 class="text-xs font-semibold text-gray-500 uppercase mb-2">Workspace</h2>
+
+      <div class="flex items-center justify-between mt-6 mb-2">
+        <h2 class="text-xs font-semibold text-gray-500 uppercase">Your Boards</h2>
+        <button (click)="showCreateForm = true" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+          Add New Board
+        </button>
+      </div>
+      <ul *ngIf="!showCreateForm">
+        <li *ngFor="let boardItem of (boards$ | async)" class="mb-2">
+          <a [routerLink]="['/boards', boardItem._id]" class="flex items-center p-2 text-gray-700 hover:bg-gray-100 rounded-md">
+            <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+            {{ boardItem.title }}
+          </a>
+        </li>
+      </ul>
+
+      <div *ngIf="showCreateForm" class="mt-4 p-3 bg-gray-50 rounded-md">
+        <h3 class="text-sm font-semibold text-gray-700 mb-2">Create New Board</h3>
+        <form [formGroup]="createBoardForm" (ngSubmit)="onCreateBoard()">
+          <input type="text" formControlName="title" placeholder="Board title"
+                 class="w-full p-2 border border-gray-300 rounded-md text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <div *ngIf="createBoardForm.controls['title'].invalid && createBoardForm.controls['title'].touched" class="text-red-500 text-xs mb-2">
+            <span *ngIf="createBoardForm.controls['title'].errors?.['required']">Title is required.</span>
+            <span *ngIf="createBoardForm.controls['title'].errors?.['minlength']">Title must be at least 3 characters.</span>
+          </div>
+          <div class="flex justify-end space-x-2">
+            <button type="button" (click)="showCreateForm = false; createBoardForm.reset()"
+                    class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100">
+              Cancel
+            </button>
+            <button type="submit" [disabled]="createBoardForm.invalid"
+                    class="px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50">
+              Create
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </nav>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col overflow-hidden w-full">
+    <!-- Header -->
+    <header class="flex items-center justify-between p-4 bg-white border-b border-gray-200 shadow-md transition-all duration-300">
+      <div class="flex items-center">
+        <h2 class="text-xl font-semibold text-gray-800">{{ board.title }}</h2>
+      </div>
+      <div class="flex items-center space-x-4">
+        <app-active-users [boardId]="boardId" [activeUsers]="board.activeUsers"></app-active-users>
+        <button (click)="openAddUserModal()"
+                class="p-2 rounded-md hover:bg-gray-100 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-6-3a9 9 0 1118 0H6z" />
+          </svg>
+        </button>
+        <button (click)="openRemoveUserModal()"
+                class="p-2 rounded-md hover:bg-gray-100 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+        <button (click)="showActivitySidebar = !showActivitySidebar"
+                class="p-2 rounded-md hover:bg-gray-100 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </button>
+        <button (click)="logout()"
+                class="p-2 rounded-md hover:bg-gray-100 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Kanban Board Content -->
+    <div class="flex-1 overflow-x-auto p-4 bg-gray-50">
+      <div class="inline-flex h-full items-start space-x-4">
+        <!-- Columns -->
+        <div *ngFor="let column of board.columns; trackBy: trackByColumnId"
+             cdkDropList
+             [cdkDropListData]="{ columnId: column._id, tasks: column.tasks }"
+             (cdkDropListDropped)="onTaskDrop($event)"
+             [id]="getColumnId(column)"
+             [cdkDropListConnectedTo]="connectedColumns"
+             class="bg-gray-100 border border-gray-200 rounded-lg w-80 flex-shrink-0 p-3 shadow-md transition-all duration-300">
+          <h3 class="font-semibold text-gray-800 mb-3 flex justify-between items-center">
+            <span>{{ column.title }} ({{ getColumnTaskCount(column) }})</span>
+            <button (click)="onDeleteColumn(column._id)" class="text-red-500 hover:text-red-700 text-sm">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </h3>
+
+          <!-- Tasks -->
+          <div *ngFor="let task of column.tasks; trackBy: trackByTaskId"
+               cdkDrag
+               [cdkDragData]="task"
+               (click)="openTaskModal(task, column)"
+               class="bg-white p-3 rounded-md border border-gray-200 shadow-sm mb-3 cursor-pointer hover:shadow-md hover:border-indigo-300 transition-all duration-200 ease-in-out relative">
+            <div *ngIf="task.priority" class="absolute top-2 right-2 w-3 h-3 rounded-full"
+                 [ngClass]="getPriorityColorClass(task.priority)"></div>
+            <div *ngIf="task.tags && task.tags.length > 0" class="flex flex-wrap gap-1 mb-2">
+              <span *ngFor="let tag of task.tags" class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
+                {{ tag }}
+              </span>
+            </div>
+            <p class="text-sm font-medium text-gray-900">{{ task.title }}</p>
+            <div *ngIf="task.deadline" class="flex items-center text-xs text-gray-500 mt-1">
+              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <span>{{ task.deadline | date:'shortDate' }}</span>
+            </div>
+            <div *ngIf="task.attachments && task.attachments.length > 0" class="flex items-center text-xs text-gray-500 mt-1">
+              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13.5"></path>
+              </svg>
+              <span>{{ task.attachments.length }}</span>
+            </div>
+
+          </div>
+
+          <!-- Add Task Button -->
+          <button (click)="openTaskModal(null, column)"
+                  class="w-full py-2 mt-3 text-sm text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors duration-200 ease-in-out flex items-center justify-center border border-indigo-300">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            New Task
+          </button>
+        </div>
+
+        <!-- Add Column Form -->
+        <div class="bg-gray-100 border border-gray-200 rounded-lg w-80 flex-shrink-0 p-3 shadow-md transition-all duration-300">
+          <h3 class="font-semibold text-gray-800 mb-3">Add New Column</h3>
+          <form [formGroup]="columnForm" (ngSubmit)="onAddColumn()">
+            <input type="text" formControlName="title" placeholder="Column title"
+                   class="w-full p-2 border border-gray-300 rounded-md mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <button type="submit" [disabled]="columnForm.invalid || addColumnLoading"
+                    class="w-full py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors duration-200 ease-in-out disabled:opacity-50">
+              <span *ngIf="!addColumnLoading">Add Column</span>
+              <span *ngIf="addColumnLoading">Adding Column...</span>
+            </button>
+          </form>
+
+
+          <!-- Public Sharing Section -->
+          <div class="mt-6 p-4 bg-white rounded-lg shadow-md">
+            <h4 class="font-semibold text-gray-800 mb-3">Public Sharing</h4>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-sm text-gray-700">Enable Public Link:</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" [checked]="isPublicSharingEnabled" (change)="togglePublicSharing()" [disabled]="sharingLoading">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+              </label>
+            </div>
+
+            <div *ngIf="isPublicSharingEnabled">
+              <label for="public-link" class="block text-sm font-medium text-gray-700 mb-1">Shareable Link:</label>
+              <div class="flex">
+                <input type="text" id="public-link" [value]="publicShareLink" readonly
+                       class="flex-grow p-2 border border-gray-300 rounded-l-md bg-gray-50 text-sm text-gray-600 focus:outline-none">
+                <button (click)="copyShareLink()"
+                        class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  Copy
+                </button>
+              </div>
+              <p class="mt-2 text-xs text-gray-500">Anyone with this link can view the board.</p>
+            </div>
+            <div *ngIf="sharingLoading" class="text-center mt-2">
+              <p class="text-sm text-indigo-600">Updating sharing status...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Sidebar (Activity Feed) -->
+  <div class="w-80 bg-white shadow-md p-4 flex-col border-l border-gray-200"
+       [class.lg:flex]="showActivitySidebar" [class.hidden]="!showActivitySidebar">
+    <div class="flex items-center justify-between border-b border-gray-200 pb-3 mb-4">
+      <h2 class="text-lg font-semibold text-gray-800">Activity</h2>
+    </div>
+    <app-activity-feed [boardId]="boardId" class="flex-grow overflow-y-auto"></app-activity-feed>
+  </div>
+
+  <!-- Task Modal -->
+  <app-task-modal *ngIf="selectedTask || isCreatingTask"
+                [task]="selectedTask"
+                [column]="selectedColumn"
+                [boardId]="boardId"
+                [boardColumns]="board.columns"
+                [boardMembers]="board.members"
+                (close)="closeTaskModal($event)"
+                (taskUpdated)="loadBoard()"
+                (save)="closeTaskModal()"></app-task-modal>
+</div>
+
+

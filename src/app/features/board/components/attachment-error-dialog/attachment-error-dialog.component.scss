@@ -1,0 +1,36 @@
+.mat-mdc-dialog-container {
+  .mat-mdc-dialog-surface {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px; /* Adjust as needed */
+    width: 100%;
+  }
+
+  .mat-mdc-dialog-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .mat-mdc-dialog-content {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 20px;
+  }
+
+  .mat-mdc-dialog-actions {
+    padding-top: 0;
+  }
+
+  button.mat-mdc-button {
+    background-color: #f44336; /* Red color for error close button */
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    &:hover {
+      background-color: #d32f2f;
+    }
+  }
+}
