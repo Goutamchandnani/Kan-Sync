@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>Remove User from Board</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="removeUserForm">
+    <mat-form-field appearance="fill">
+      <mat-label>Select User</mat-label>
+      <mat-select formControlName="userId">
+        <mat-option *ngFor="let member of boardMembers" [value]="member._id">
+          {{ member.name }} ({{ member.email }})
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="removeUserForm.get('userId')?.hasError('required')">
+        Please select a user.
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="warn" (click)="onRemoveUser()" [disabled]="!removeUserForm.valid">Remove User</button>
+</mat-dialog-actions>

@@ -1,0 +1,84 @@
+1) Problem
+- merchants frequently calling support team about the issue : settlement of their payment
+- 3,500 calls are conducted by the support team monthly
+- support agent spends 5 minutes per call explaining the settlement process and checking the status manually in the backend system
+- monthly support agents are spending 292 hours for this issue
+- merchants are frustrated because they cant find this detail on the device
+- merchants are worried because the payment is delayed or they want to check their specific payment status
+
+2) solution
+
+- option a : create a ai call agent which will attend the calls and answer merchants all queries 
+- pros : saves 250 hours per month 
+- cons : time consuming for the ai team
+- impact : monthly calls will be reduced for support agent team which will save money if one support agent's salary is 1500GBP per month and there are 10 support agents in the team : company savings 15000GBP/month
+- timeline : 7-8 weeks (build + test)
+
+- option b : create a chatbot on merchant dashboard 
+- pros : merchants will be clear where to check, multilingual support
+- cons : air the updated version to all the terminals and give them training on how to use the chatbot
+- impact : merchants will be able to understand all the payment just with click
+- timeline : 5-6 weeks (build + air)
+
+- option c : implement a chatbot as well as a ai call agent if some merchant don't understand merchant will have option to ask someone
+- pros : we don't need any support agent for this
+- cons : it will take good amount of time to build both the things and then make air to all the terminal devices
+- impact : merchants will be very clear for how to check the payment status as well as they will have someone to clear their queries
+- timeline : 9-10 weeks ( build both + air )
+
+- recommendation : option c
+- why : it will solve the problem for now and for all because merchants will have both the options and dojo will save 15000GBP/month as well as 292 hours/month
+
+3) technical approach
+
+Architecture:
+- Frontend for chatbot : UI and rules defined to it
+- API connected to the backend for checking
+- Train AI Call Agent with the help of elevenlabs
+- N8N workflow automation for Ai call agent
+
+Workflow:
+- Ai call agent -> API -> Backend -> Merchant
+- Chatbot -> API -> Backend -> Merchant Device
+
+Data Required:
+- Payment Database (Dojo)
+- Merchant Device IDs to air the update
+- Data to train Voice AI Agent
+- Rules for Chatbot
+
+Timeline:
+- Weeks 1-3 : API development and testing ( both Ai call agent and chatbot )
+- Weeks 4-6 : Rules for Chatbot and UI of Chatbot
+- Weeks 7-9 : N8N workflow with the connection of dojo database
+- Weeks 9-10 : First check with 50 merchants -> Feedback -> New Update to all merchants
+
+4) Success metrics:
+
+Primary KPIs:
+- Monthly calls reduced : 3500 -> 500 ( 85% reduction )
+- support agents cost : 15000GBP/month ( 100% reduction )
+- merchants time will be saved as well : 5 minutes -> 2 minutes ( 45% reduction )
+
+
+Secondary Metrics:
+- merchants satisfaction rate : 5/10 -> 8/10
+- New merchants growing 
+
+Timeline: 
+- Month 1 : chatbot will be released 
+- Month 2 : Ai call agent will be released
+- Month 3 : Successfully Aired on all merchant devices with 100% working features
+
+5. Entrepreneurial Impact
+
+Immediate Vale:
+Frees Support agents 292 Hours/month, allowing them to focus on other issues which merchants are facing, merchants satisfaction rate increased from 40% to 80%, improving merchant retention and reputation
+
+Strategic vale:
+This ai call agent can be rolled out for other information as well which merchants are not able to understand or help them with other type of issues such as their total number of transaction till date or amount of money they have collected yet
+
+Whats Next:
+1. Expand ai call agent to support other issues of merchants 
+2. Add more answers to the queries on the chatbot so merchants satisfaction rate is increased more than 80%
+3. integrate voice assistant for easiness of the merchants so that they can just ask like siri to the merchant device

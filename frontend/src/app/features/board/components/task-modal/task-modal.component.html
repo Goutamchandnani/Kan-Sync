@@ -1,0 +1,139 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="close.emit()">
+  <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center border-b pb-3 mb-4">
+      <h2 class="text-xl font-semibold">{{ isCreatingTask ? 'Create Task' : 'Edit Task' }}</h2>
+      <button class="text-gray-500 hover:text-gray-700 text-2xl" (click)="onClose()">&times;</button>
+    </div>
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left Column -->
+        <div>
+          <div class="mb-4">
+            <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+            <input id="title" formControlName="title" type="text" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="Task title">
+          </div>
+          <div class="mb-4">
+            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+            <textarea id="description" formControlName="description" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="Task description"></textarea>
+          </div>
+
+          <!-- Gemini Suggestions -->
+          <div class="mb-4">
+            <button type="button" (click)="getGeminiSuggestions()" [disabled]="isLoadingSuggestions" class="px-4 py-2 rounded-md font-semibold bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50">
+              <span *ngIf="!isLoadingSuggestions">Get Gemini Suggestions</span>
+              <span *ngIf="isLoadingSuggestions">Loading Suggestions...</span>
+            </button>
+            <div *ngIf="geminiSuggestions" class="mt-2 p-3 bg-blue-50 rounded-md">
+              <p class="font-semibold">Gemini Suggestion:</p>
+              <p>Priority: {{ geminiSuggestions.priority }}</p>
+              <p>Deadline: {{ geminiSuggestions.deadline }}</p>
+              <p>Reason: {{ geminiSuggestions.reason }}</p>
+              <button type="button" (click)="applySuggestion()" class="ml-2 text-blue-600 hover:underline">Apply Suggestion</button>
+            </div>
+          </div>
+
+          <!-- Comments Section -->
+          <div class="mt-4">
+            <h4 class="text-lg font-semibold mb-2">Comments</h4>
+            <div *ngIf="comments.length === 0" class="text-gray-500">No comments yet.</div>
+            <div *ngFor="let comment of comments" class="bg-gray-100 p-3 rounded-md mb-2">
+              <div class="flex items-center mb-1">
+                <img [src]="comment.user.avatar || 'assets/default-avatar.png'" alt="User Avatar" class="w-6 h-6 rounded-full mr-2">
+                <span class="font-medium">{{ comment.user.name || 'Unknown User' }}</span>
+                <span class="text-xs text-gray-500 ml-2">{{ comment.createdAt | date:'short' }}</span>
+              </div>
+              <p class="text-sm">{{ comment.content }}</p>
+              <button *ngIf="currentUser && comment.user._id === currentUser._id" (click)="deleteComment(comment._id)" class="text-red-500 hover:text-red-700 text-sm mt-1">Delete</button>
+            </div>
+
+            <!-- Add Comment Form -->
+            <form [formGroup]="commentForm" (ngSubmit)="addComment()" class="mt-4">
+              <textarea formControlName="content" placeholder="Add a comment..."
+                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+              <button type="submit" [disabled]="commentForm.invalid" class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50">
+                Add Comment
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+          <div class="mb-4">
+            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+            <select id="status" formControlName="status" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              <option *ngFor="let column of boardColumns" [value]="column.title">{{ column.title }}</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="priority" class="block text-sm font-medium text-gray-700">Priority</label>
+            <select id="priority" formControlName="priority" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="assignedTo" class="block text-sm font-medium text-gray-700">Assigned To</label>
+            <select id="assignedTo" formControlName="assignedTo" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              <option [ngValue]="null">Unassigned</option>
+              <option *ngFor="let member of boardMembers" [ngValue]="member._id">{{ member.name }}</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="deadline" class="block text-sm font-medium text-gray-700">Deadline</label>
+            <input id="deadline" formControlName="deadline" type="date" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" [min]="minDate">
+          </div>
+
+          <!-- Tags Input -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Tags</label>
+            <div class="flex flex-wrap gap-2 mb-2">
+              <span *ngFor="let tag of taskForm.get('tags')?.value" class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full flex items-center">
+                {{ tag }}
+                <button type="button" (click)="removeTag(tag)" class="ml-2 text-blue-600 hover:text-blue-800">&times;</button>
+              </span>
+            </div>
+            <div class="flex">
+              <input type="text" #newTagInput placeholder="Add new tag" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 flex-grow" (keydown.enter)="addTag(newTagInput)">
+              <button type="button" (click)="addTag(newTagInput)" class="ml-2 px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Add</button>
+            </div>
+          </div>
+
+          <!-- Attachments Section -->
+          <div class="mt-4">
+            <h4 class="text-lg font-semibold mb-2">Attachments</h4>
+            <div *ngIf="attachments.length === 0" class="text-gray-500">No attachments yet.</div>
+            <div *ngFor="let attachment of attachments" class="bg-gray-100 p-3 rounded-md mb-2 flex justify-between items-center">
+              <a [href]="attachment.url" target="_blank" class="text-indigo-600 hover:underline">{{ attachment.fileName }}</a>
+              <button (click)="deleteAttachment(attachment._id)" class="text-red-500 hover:text-red-700 text-sm">Delete</button>
+            </div>
+
+            <!-- Upload Attachment -->
+            <div class="mt-4">
+              <input type="file" (change)="onFileSelected($event)" class="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-indigo-50 file:text-indigo-700
+                    hover:file:bg-indigo-100"/>
+              <div *ngIf="uploadProgress > 0 && uploadProgress < 100" class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                <div class="bg-indigo-600 h-2.5 rounded-full" [style.width.%]="uploadProgress"></div>
+              </div>
+              <p *ngIf="uploadProgress === 100" class="text-sm text-green-600 mt-1">Upload complete!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-4 border-t mt-4">
+        <button type="submit" class="px-4 py-2 rounded-md font-semibold bg-indigo-600 text-white hover:bg-indigo-700" [disabled]="taskForm.invalid || isSaving">
+          <span *ngIf="!isSaving">{{ isCreatingTask ? 'Create Task' : 'Save Changes' }}</span>
+          <span *ngIf="isSaving">Saving...</span>
+        </button>
+        <button type="button" class="px-4 py-2 rounded-md font-semibold bg-red-600 text-white hover:bg-red-700 ml-2" *ngIf="!isCreatingTask" (click)="onDelete()">Delete Task</button>
+        <button type="button" class="px-4 py-2 rounded-md font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 ml-2" (click)="onClose()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
